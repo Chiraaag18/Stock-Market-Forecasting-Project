@@ -1,0 +1,67 @@
+# Code Snippet for prediction based on machine learning algorithm
+
+#importing libraries for to implement Linear Regression
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.svm import SVC
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
+
+#importing the dataset
+df=pd.read_csv('NSE-TATAGLOBAL11.csv')
+print("\n\nFirst Five Table Values from the Dataset: ")
+print(df.head())
+
+df = df[['Close']]
+print("\n\nClosing Values of the First Five Days: ")
+print(df.head())
+
+
+#Variable depicting how many days prediction to be done.
+forecast_out = 30
+df['Prediction'] = df[['Close']].shift(-forecast_out)
+print("\n\n\nClosing Values of the Last Five Days: ")
+print(df.tail())
+
+X = np.array(df.drop(['Prediction'],1))
+
+X = X[:-forecast_out]
+#print(X)
+
+y = np.array(df['Prediction'])
+y = y[:-forecast_out]
+y=y.astype('int')
+#print(y)
+
+
+#declaring the training and testing variables and splitting the data into 80% training and 20% testing
+x_traindata, x_testdata, y_traindata, y_testdata = train_test_split(X, y, test_size=0.2)
+
+svr = SVC(kernel = 'rbf', gamma= 'auto')
+svr.fit(x_traindata, y_traindata)
+
+#svm_confidence = svr.score(x_testdata, y_testdata)
+#print("svm confidence: ", svm_confidence)
+
+#Linear Regression Implementation
+lr = LinearRegression()
+lr.fit(x_traindata, y_traindata)
+
+lr_confidence = lr.score(x_testdata, y_testdata)
+print("\n\nAccuracy of Linear Regression Algorithm: ", 100*lr_confidence)
+
+
+#forecasting procedure
+x_forecast = np.array(df.drop(['Prediction'],1))[-forecast_out:]
+#print(x_forecast)
+
+#printing the forecasted output
+print("Forecasted Result without Sentiment Analysis: ")
+lr_prediction = lr.predict(x_forecast)
+print("Linear Regression: ")
+print(lr_prediction)
+
+#svm_prediction = svr.predict(x_forecast)
+#print("Support Vector Regressor: ")
+#print(svm_prediction)
